@@ -1,53 +1,52 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { Address, BigInt,Value, Bytes } from "@graphprotocol/graph-ts"
 import {
   FontNFT,
-  Approval,
-  ApprovalForAll,
-  BidCanceled,
-  BidOrder,
-  Boosted,
-  BoughtLicense,
-  EarningsClaimed,
-  EditedPaymentTokens,
-  OrderBidApproved,
-  OrderBought,
-  OrderCanceled,
-  OrderCreated,
-  OrderEdited,
-  RewardsClaimed,
-  RoleAdminChanged,
-  RoleGranted,
-  RoleRevoked,
-  RoyalitiesUpdated,
-  Transfer,
-  UserAddedBulk,
+  SafeMintAndListCall,
+  MapAddUserBulkCall,
+  MapEditUserCall,
   UserEdited
-} from "../generated/FontNFT/FontNFT"
-import { ExampleEntity } from "../generated/schema"
 
-export function handleApproval(event: Approval): void {
+} from "../generated/FontNFT/FontNFT"
+import { FontNFTEntity, DebuggerStuff } from "../generated/schema"
+//import * as _ from 'underscore'
+
+import { logStore } from 'matchstick-as/assembly/store'
+
+
+export function handlesafeMintAndList(call: SafeMintAndListCall): void {
+
+
+  let id = call.transaction.from.toHex();
+  console.log(id);
+
+  
+
+
+
+
+  //console.log(call);
+
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+  //let entity = FontNFTEntity.load(call.transaction.from.toHex())
 
   // Entities only exist after they have been saved to the store;
   // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+  //if (!entity) {
+  //  entity = new FontNFTEntity(call.transaction.from.toHex())
 
     // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
+  //}
 
   // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
+  //entity.count = entity.count + BigInt.fromI32(1)
 
   // Entity fields can be set based on event parameters
-  entity.owner = event.params.owner
-  entity.approved = event.params.approved
+  //entity.owner = event.params.owner
+  //entity.approved = event.params.approved
 
   // Entities can be written to the store with `.save()`
-  entity.save()
+  //entity.save()
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
@@ -94,6 +93,77 @@ export function handleApproval(event: Approval): void {
   // - contract.viewPaymentMethod(...)
 }
 
+export function handlemapAddUserBulk(call: MapAddUserBulkCall): void {
+  var _users:Address[] = call.inputs._address;
+  var _nfts:BigInt[] = call.inputs._nft;
+
+
+
+  
+  if(_users.length > 0 && _users.length == _nfts.length) {
+    var _user:Address;
+    var _nft:string;
+      
+    var i:i32;
+
+    for(i = 0; i < _users.length; i++) {
+      _user = _users[i];
+      _nft = _nfts[i].toString();
+      var fontEntity = FontNFTEntity.load(_nft);
+      if(!fontEntity) {
+        fontEntity = new FontNFTEntity(_nft)
+      }
+      
+      fontEntity.set('originalNFTCreator', Value.fromAddress(_user));
+
+      fontEntity.save();
+
+    }
+
+  
+    
+    
+  }
+  
+}
+
+export function handlemapEditUser(call: MapEditUserCall): void {
+  
+  var _user:Address = call.inputs._address;
+  var _nft:string = call.inputs._nft.toString();
+  
+  var fontEntity = FontNFTEntity.load(_nft);
+  if(!fontEntity) {
+    fontEntity = new FontNFTEntity(_nft)
+  }
+  
+  fontEntity.set('originalNFTCreator', Value.fromAddress(_user));
+
+  fontEntity.save();
+
+}
+
+
+export function eventUserEdited(event: UserEdited): void {
+  var _user:string = event.params.param0.toString();
+  var _nft:string = event.params.param1.toString();
+
+
+  var fontEntity = FontNFTEntity.load(_nft);
+  if(!fontEntity) {
+    fontEntity = new FontNFTEntity(_nft)
+  }
+
+  fontEntity.set('originalNFTCreator', Value.fromString(_user));
+
+  fontEntity.save();
+
+}
+
+
+
+/*
+
 export function handleApprovalForAll(event: ApprovalForAll): void {}
 
 export function handleBidCanceled(event: BidCanceled): void {}
@@ -133,3 +203,6 @@ export function handleTransfer(event: Transfer): void {}
 export function handleUserAddedBulk(event: UserAddedBulk): void {}
 
 export function handleUserEdited(event: UserEdited): void {}
+
+
+*/

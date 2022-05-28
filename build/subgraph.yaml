@@ -1,0 +1,83 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: FontNFT
+    network: fantom
+    source:
+      address: "0x9c05005073218c4Ab688D092E8476D2F2a81b458"
+      abi: FontNFT
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - BidCanceled
+        - BidOrder
+        - Boosted
+        - BoughtLicense
+        - EarningsClaimed
+        - EditedPaymentTokens
+        - OrderBidApproved
+        - OrderBought
+        - OrderCanceled
+        - OrderCreated
+        - OrderEdited
+        - RewardsClaimed
+        - RoleAdminChanged
+        - RoleGranted
+        - RoleRevoked
+        - RoyalitiesUpdated
+        - Transfer
+        - UserAddedBulk
+        - UserEdited
+      abis:
+        - name: FontNFT
+          file: FontNFT/abis/FontNFT.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: BidCanceled(uint256)
+          handler: handleBidCanceled
+        - event: BidOrder(uint256,uint256,uint256)
+          handler: handleBidOrder
+        - event: Boosted(uint256,uint256)
+          handler: handleBoosted
+        - event: BoughtLicense(uint256)
+          handler: handleBoughtLicense
+        - event: EarningsClaimed(address,address,uint256)
+          handler: handleEarningsClaimed
+        - event: EditedPaymentTokens(address,bool,uint256)
+          handler: handleEditedPaymentTokens
+        - event: OrderBidApproved(uint256)
+          handler: handleOrderBidApproved
+        - event: OrderBought(uint256)
+          handler: handleOrderBought
+        - event: OrderCanceled(uint256)
+          handler: handleOrderCanceled
+        - event: OrderCreated(uint256)
+          handler: handleOrderCreated
+        - event: OrderEdited(uint256)
+          handler: handleOrderEdited
+        - event: RewardsClaimed(address,uint256)
+          handler: handleRewardsClaimed
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: RoyalitiesUpdated(uint256)
+          handler: handleRoyalitiesUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: UserAddedBulk(uint256)
+          handler: handleUserAddedBulk
+        - event: UserEdited(address,uint256)
+          handler: handleUserEdited
+      file: FontNFT/FontNFT.wasm

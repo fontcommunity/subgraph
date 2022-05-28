@@ -1,6 +1,26 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
-  owner: Bytes! # address
-  approved: Bytes! # address
+type FontNFTEntity @entity {
+  id: ID! # use NFT id a primary key
+  minted: Boolean # If an NFT is minted by creator (or by admin)
+  custody: Boolean # If the NFT is under Font NFT marketplace Custody
+  realOwner: Bytes! # Owner of this NFT 
+  originalNFTCreator: Bytes! # original creator of this NFT 
+  royality: Int! # Royality Percentage. 100 = 1% 
+  referralCommission: Int # referralCommission Percentage. 100 = 1% 
+  boost: BigInt # Boost received so for
+  orderID: BigInt # Order ID 
+  auction: Boolean # If Order is auction or spot. 
+  token: Bytes # ERC20 token for price 
+  price: BigInt
+  minPrice: BigInt
+  highestBidID: BigInt
+  dateMinted: Int
+  dateMapped: Int
+  dateUpdated: Int
+  orderCount: Int
+  ownersCount: Int
+}
+
+type DebuggerStuff @entity {
+  id: ID! # use NFT id a primary key
+  msg: String #message
 }
