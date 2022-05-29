@@ -1,9 +1,10 @@
-import { Address, BigInt,Value, Bytes } from "@graphprotocol/graph-ts"
+import { Address, BigInt,Value, Bytes,ethereum } from "@graphprotocol/graph-ts"
 import {
   FontNFT,
   SafeMintAndListCall,
   MapAddUserBulkCall,
   MapEditUserCall,
+  SafeMintCall,
   UserEdited
 
 } from "../generated/FontNFT/FontNFT"
@@ -11,6 +12,7 @@ import { FontNFTEntity, DebuggerStuff } from "../generated/schema"
 //import * as _ from 'underscore'
 
 import { logStore } from 'matchstick-as/assembly/store'
+
 
 
 export function handlesafeMintAndList(call: SafeMintAndListCall): void {
@@ -96,15 +98,13 @@ export function handlesafeMintAndList(call: SafeMintAndListCall): void {
 export function handlemapAddUserBulk(call: MapAddUserBulkCall): void {
   var _users:Address[] = call.inputs._address;
   var _nfts:BigInt[] = call.inputs._nft;
-
-
-
   
   if(_users.length > 0 && _users.length == _nfts.length) {
     var _user:Address;
     var _nft:string;
       
     var i:i32;
+    var currentTimeInSeconds = call.block.timestamp.toI32();
 
     for(i = 0; i < _users.length; i++) {
       _user = _users[i];
@@ -112,19 +112,19 @@ export function handlemapAddUserBulk(call: MapAddUserBulkCall): void {
       var fontEntity = FontNFTEntity.load(_nft);
       if(!fontEntity) {
         fontEntity = new FontNFTEntity(_nft)
+        fontEntity.set('dateMapped', Value.fromI32(<i32>currentTimeInSeconds));
+      }
+      else {
+        fontEntity.set('dateUpdated', Value.fromI32(currentTimeInSeconds));
       }
       
       fontEntity.set('originalNFTCreator', Value.fromAddress(_user));
+      fontEntity.set('realOwner', Value.fromAddress(_user));
 
       fontEntity.save();
 
     }
-
-  
-    
-    
   }
-  
 }
 
 export function handlemapEditUser(call: MapEditUserCall): void {
@@ -135,32 +135,40 @@ export function handlemapEditUser(call: MapEditUserCall): void {
   var fontEntity = FontNFTEntity.load(_nft);
   if(!fontEntity) {
     fontEntity = new FontNFTEntity(_nft)
+    var currentTimeInSeconds = call.block.timestamp.toI32();
+    fontEntity.set('dateMapped', Value.fromI32(currentTimeInSeconds));
   }
-  
+  else {
+    fontEntity.set('dateUpdated', Value.fromI32(currentTimeInSeconds));
+  }
+
   fontEntity.set('originalNFTCreator', Value.fromAddress(_user));
-
+  fontEntity.set('realOwner', Value.fromAddress(_user));
   fontEntity.save();
-
 }
 
+export function handlesafeMint(call: SafeMintCall): void {
+  var royality:i32 = call.inputs.royality;
+  var nft:string = call.inputs.nft.toString();
 
-export function eventUserEdited(event: UserEdited): void {
-  var _user:string = event.params.param0.toString();
-  var _nft:string = event.params.param1.toString();
+  var fontEntity = FontNFTEntity.load(nft);
+  if(fontEntity) {
 
+    fontEntity.set('royality', Value.fromI32(royality));
+    var currentTimeInSeconds = call.block.timestamp.toI32();
+    fontEntity.set('dateMinted', Value.fromI32(currentTimeInSeconds));
+    fontEntity.set('dateUpdated', Value.fromI32(currentTimeInSeconds));
+    fontEntity.set('ownersCount', Value.fromI32(1));
+    fontEntity.set('minted', Value.fromBoolean(true));
+    fontEntity.set('custody', Value.fromBoolean(false));
 
-  var fontEntity = FontNFTEntity.load(_nft);
-  if(!fontEntity) {
-    fontEntity = new FontNFTEntity(_nft)
+    var originalNFTCreator:Address = call.from;
+    fontEntity.set('realOwner', Value.fromAddress(originalNFTCreator));
+
+    fontEntity.save();
+
   }
-
-  fontEntity.set('originalNFTCreator', Value.fromString(_user));
-
-  fontEntity.save();
-
 }
-
-
 
 /*
 
@@ -206,3 +214,16 @@ export function handleUserEdited(event: UserEdited): void {}
 
 
 */
+
+function getCurrentTimeFromBlock(Block: ethereum.Block):i32 {
+  _Block = new Block();
+  return _Block.timestamp.toI32();
+  //var __Block = new _Block();
+  //_Block.timestamp()
+
+  //var _Asdasd = <i32> = newDate().now;
+  //var _date = new Date(0);
+  //return _date.now();
+  //return Math.floor(_date / 1000);
+
+}

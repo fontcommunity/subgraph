@@ -3,8 +3,8 @@ import { Address, BigInt, Bytes, ethereum, store, Value, ipfs } from "@graphprot
 
 import { createEventUserEdited } from "./utils"
 import { FontNFTEntity } from "../../generated/schema"
-import { SafeMintAndListCall, FontNFT, MapEditUserCall, MapAddUserBulkCall } from "../../generated/FontNFT/FontNFT"
-import { handlesafeMintAndList, eventUserEdited, handlemapEditUser, handlemapAddUserBulk } from "../../src/mapping"
+import { SafeMintAndListCall, FontNFT, MapEditUserCall, MapAddUserBulkCall, SafeMintCall } from "../../generated/FontNFT/FontNFT"
+import { handlesafeMintAndList, handlemapEditUser, handlemapAddUserBulk, handlesafeMint } from "../../src/mapping"
 import { logStore } from 'matchstick-as/assembly/store'
 import { log } from "matchstick-as/assembly/log";
 
@@ -193,9 +193,35 @@ test("Map multiple NFTs to users in single operation", () =>{
     call.inputValues = _EventParam;
     handlemapAddUserBulk(call)
 
-    logStore()
+    assert.fieldEquals(FONT_ENTITY_TYPE, "1", "originalNFTCreator", "0x369799e8308bfd8d32fe4709db82af51e6f1cc60")
+    assert.fieldEquals(FONT_ENTITY_TYPE, "2", "originalNFTCreator", "0x269799e8308bfd8d32fe4709db82af51e6f1cc60")
+
+
+    //logStore()
 
 }) 
+
+
+test("Able to update the royality", () => {
+
+    let bigIntParam_nft = BigInt.fromString("1")
+    let intParam_royality = 120
+
+    let call = changetype<SafeMintCall>(newMockCall())
+
+    
+
+    var _EventParam = [
+        new ethereum.EventParam("nft", ethereum.Value.fromUnsignedBigInt(bigIntParam_nft)), 
+        new ethereum.EventParam("royality", ethereum.Value.fromI32(intParam_royality))
+    ]
+
+    //call.inputValues = [new ethereum.EventParam("_address", ethereum.Value.fromString("0xC69EFcbc53FCC08BF712569aCe5c60259822a13E")), new ethereum.EventParam("_nft", ethereum.Value.fromString("1"))]
+    call.inputValues = _EventParam;
+    handlesafeMint(call)
+  
+    logStore()
+})
 
 /*
 

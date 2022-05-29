@@ -19,9 +19,6 @@ dataSources:
       abis:
         - name: FontNFT
           file: ./abis/FontNFT.json
-      eventHandlers:
-        - event: UserEdited(address,uint256)
-          handler: eventUserEdited
       callHandlers:
         - function: approve(address,uint256)
           handler: handleapprove

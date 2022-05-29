@@ -2,6 +2,7 @@ type FontNFTEntity @entity {
   id: ID! # use NFT id a primary key
   minted: Boolean # If an NFT is minted by creator (or by admin)
   custody: Boolean # If the NFT is under Font NFT marketplace Custody
+  approved: Boolean # is the current NFT approved to use by Exchange?
   realOwner: Bytes! # Owner of this NFT 
   originalNFTCreator: Bytes! # original creator of this NFT 
   royality: Int! # Royality Percentage. 100 = 1% 
